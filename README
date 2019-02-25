@@ -1,0 +1,111 @@
+README
+
+I wrote this code and the following README in 2008 as the final project for CS201 at IIT.
+
+
+--------------
+
+Final Project
+CS 201
+
+
+
+This program plays the game Risk.  The main class is Game.   The six non-main
+classes are: Country, Continent, Board, Dice, File, PlayGame, and Player.  To
+start the program, run the Game class.  The game will prompt you for any
+information (such as the filename) it needs to get started.
+
+The main class, Game, simply makes calls to the PlayGame class.  Essentially,
+the PlayGame class is running the game; the Game class just makes it go in the
+right order.
+
+The Country class creates a Country object.  Each country has a name, an
+integer representation, a continent name, a continent symbol, an owner, an
+integer row index, a character column index, an integer column index, and the
+number of armies (battalions) in that country.  Additionally the Country class
+has a static integer which is incremented every time a new Country object is
+created.  The Country class contains a non-default constructor, the usual get*
+and set* methods, and a toString method.
+
+The Continent class creates a Continent object.  Each continent has a name,
+an integer representation, a symbol, and an integer value for the player who
+occupies the whole continent.  The Continent class has a static integer which
+increments by 1 every time a new Continent object is created.  The Continent
+class has a non-default constructor, and the usual get* and set* methods.
+
+The Board class makes a board for the game.  The board has five grids, each of
+which have information in the position where the country the information
+pertains to is located.  One grid is a character grid of symbols of continents
+-- they show where each continent is located.  Another is a character grid of
+players -- each country has a player who occupies it.  Another is an integer
+grid of armies (battalions) -- each country has a number of armies in it.
+Another grid is a grid of the integer representation of the countries.  Lastly,
+the Board class makes a String array or grid of what is actually displayed to
+the players.  The Board class has a non-default constructor, a method to fill
+the grid, a method to update the grid as the game progresses, and a toString
+method that displays the board to the players.  In addition to those methods
+which relate directly to the way the board is used and looks, the Board class
+has a method to make an adjacency matrix and a toString method for that matrix.
+The adjacency matrix is basically the adjacency matrix of a graph if each
+country is a vertex and the adjacency of the cells on the board is likened to
+adjacency of vertices in a graph.  The toString method for the adjacency matrix
+isn't really necessary but I included it originally so I could check to make
+sure it worked and then left it in in case it became necessary later.  Also,
+the adjacency matrix has two  methods which, when given a country's integer
+representation, will return an integer array with the countries adjacent to the
+kth country or a String of countries adjacent to the kth country (clearly which
+result is returned is dependent on which method is used).
+
+The Dice class does nothing except roll dice.  It's not terribly interesting.
+
+The File class reads the file given to it.  My [probably incorrect] assumption
+about this class is that the file is comma delimited and has no errors.  I also
+assumed that whoever is trying to play Risk can type correctly and will enter
+the file name correctly.  This is probably a poor assumption because people
+make mistakes and sometimes mistype.  Fortunately, however, this is the very
+first thing that can go wrong in the game and if it doesn't find the file, 
+it won't destroy the game halfway through.  This class determines the number of
+continents, the number of countries, and how they are laid out on the board.
+This class also records how many rows and columns are on the board and the
+information about the countries and continents (which continents the countries
+are located on, what the continent symbols are, etc.).  This class also assigns
+the integer representations of the countries and continents based on their
+position in the file.
+
+The PlayGame class is by far the ugliest of my classes.  This class is called
+by the Game class and basically runs the game.  It has all the parts of the
+game in it and they are called sequentially from the Game class based on how a
+normal game of Risk progresses.
+
+Lastly, the Player class is the computer player.  This class has several methods
+which are designed to do what a human player would do.  Since I've never played
+Risk, I have no idea which countries are beneficial to occupy, so I just had
+the computer choose random numbers.  My goal is to have a computer opponent
+which plays as competently as I do (preferably more so, but the bottom range is
+hopefully similar to my ability).  Later in the game, when allocating
+reinforcements and attacking are necessary, I designed an algorithm based on 
+a weighted graph.  The graph itself (a double array called occupancy in the
+code) is a graph of directed edges which all have weights.  The weight of a
+particular edge is a function of the adjacency of the countries, the occupant
+of the countries (both the computer and the other player), and the number of
+armies in the country (both the computer's and the other player's).  The
+specific way it works is: if x and y are countries on the board, x is owned by
+the computer and y is owned by another player,
+f(x,y) = adj(x,y)*owner(x)*((owner(y) + 1)%2)*(armies(x)-1)/(armies(y) + 1)
+That is, adj(x,y) returns either 1 or 0 depending on if the countries x and y
+are adjacent or not, respectively.  Owner(x) returns 1 or 0 depending
+on whether the computer occupies the country x or doesn't, respectively.
+Armies(x) returns the number of armies in x.  If adj(x,y), owner(x), and
+owner(y) are all 1, then weight of the edge is a ratio of the computer's armies
+to an opposing player's armies.  Specifically, I don't want the computer to
+attack if the the percentage is too low; if, for example, the computer has 2
+armies in a country and the opponent has 1, the computer can attack, but it can
+only attack once so that is not good for winning.  Therefore, I weighted the
+ratio a little -- the computer's armies are decreased by 1 to compensate for
+the fact that it can only attack until there is one army left in the country,
+and the opponent's armies are increased by 1 to make sure that the computer has
+at least one more than the opponent when it decides to attack.
+
+Etc.
+
+All of my code is messy and the fortification part of the turn is missing.
